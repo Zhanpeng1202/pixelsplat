@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.ckpt
-.zip
+*.ckpt
+*.zip
 .Python
 build/
 develop-eggs/
@@ -177,3 +177,4 @@ cython_debug/
 table.tex
 /baselines
 /test/*
+dataset/re10k_subset.zip
