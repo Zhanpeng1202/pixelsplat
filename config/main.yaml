@@ -11,7 +11,7 @@ wandb:
   name: placeholder
   mode: disabled
 
-mode: train
+mode: test
 
 dataset:
   overfit_to_scene: null
@@ -39,7 +39,7 @@ optimizer:
   warm_up_steps: 2000
 
 checkpointing:
-  load: null
+  load: /data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/checkpoints/re10k.ckpt
   every_n_train_steps: 5000
   save_top_k: -1
 

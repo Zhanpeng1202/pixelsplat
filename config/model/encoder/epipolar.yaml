@@ -1,5 +1,5 @@
 defaults:
-  - backbone: resnet
+  - backbone: dino
 
 name: epipolar
 

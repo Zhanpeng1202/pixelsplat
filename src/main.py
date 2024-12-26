@@ -1,4 +1,7 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "7"
+
+
 from pathlib import Path
 
 import hydra
