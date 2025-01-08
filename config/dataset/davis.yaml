@@ -1,0 +1,14 @@
+defaults:
+  - view_sampler: single
+
+name: davis
+roots: [/data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/dataset/re10k_subset]
+make_baseline_1: true
+augment: true
+
+image_shape: [180, 320]
+background_color: [0.0, 0.0, 0.0]
+cameras_are_circular: false
+
+baseline_epsilon: 1e-3
+max_fov: 100.0
