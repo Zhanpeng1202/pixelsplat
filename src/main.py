@@ -93,7 +93,7 @@ def train(cfg_dict: DictConfig):
         max_epochs=-1,
         accelerator="gpu",
         logger=logger,
-        devices="auto",
+        devices="1",
         strategy=(
             "ddp_find_unused_parameters_true"
             if torch.cuda.device_count() > 1

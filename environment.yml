@@ -1,20 +1,15 @@
-name: pst11
+name: pst10
 channels:
   - pytorch
   - conda-forge
   - defaults
   - nvidia
 dependencies:
-  - cudatoolkit-dev
+  - cudatoolkit=11.6
   - plyfile
-  - python=3.11
-  - pytorch
-  - torchaudio
-  - torchvision
+  - pip
   - tqdm
-  - pytorch-cuda=12.1
   - wheel
-  - tqdm
   - lightning
   - black
   - ruff
@@ -35,7 +30,10 @@ dependencies:
   - e3nn
   - tabulate
   - svg.py
+  - xformers
+
+
+
 
   - pip:
     - git+https://github.com/dcharatan/diff-gaussian-rasterization-modified
-    # - submodules/simple-knn
