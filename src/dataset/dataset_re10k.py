@@ -19,6 +19,7 @@ from .shims.augmentation_shim import apply_augmentation_shim
 from .shims.crop_shim import apply_crop_shim
 from .types import Stage
 from .view_sampler import ViewSampler
+import sys
 
 
 @dataclass
@@ -205,8 +206,13 @@ class DatasetRE10k(IterableDataset):
     ) -> Float[Tensor, "batch 3 height width"]:
         torch_images = []
         for image in images:
+            print(f"before convert-----------{image.shape}")
             image = Image.open(BytesIO(image.numpy().tobytes()))
-            torch_images.append(self.to_tensor(image))
+            
+            image  = self.to_tensor(image)
+            print(f"after convert-----------{image.shape}")
+            
+            torch_images.append(image)
         return torch.stack(torch_images)
 
     def get_bound(

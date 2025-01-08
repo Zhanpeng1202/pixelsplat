@@ -1,5 +1,5 @@
 defaults:
-  - view_sampler: bounded
+  - view_sampler: evaluation
 
 name: re10k
 roots: [/data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/dataset/re10k_subset]
