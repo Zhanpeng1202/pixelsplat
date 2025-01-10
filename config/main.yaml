@@ -1,5 +1,5 @@
 defaults:
-  - dataset: re10k
+  - dataset: davis
   - optional dataset/view_sampler_dataset_specific_config: ${dataset/view_sampler}_${dataset}
   - model/encoder: epipolar
   - model/decoder: splatting_cuda
@@ -8,7 +8,7 @@ defaults:
 wandb:
   project: pixelsplat
   entity: scene-representation-group
-  name: reproduce_bounded
+  name: single
   mode: disabled
 
 mode: test
@@ -48,7 +48,7 @@ train:
   extended_visualization: false
 
 test:
-  output_path: outputs/test
+  output_path: outputs/rollerblade
 
 seed: 111123
 

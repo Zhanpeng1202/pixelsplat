@@ -19,12 +19,12 @@ from .shims.augmentation_shim import apply_augmentation_shim
 from .shims.crop_shim import apply_crop_shim
 from .types import Stage
 from .view_sampler import ViewSampler
-import sys
+
 
 
 @dataclass
-class DatasetRE10kCfg(DatasetCfgCommon):
-    name: Literal["re10k"]
+class DatasetSingleCfg(DatasetCfgCommon):
+    name: Literal["single"]
     roots: list[Path]
     baseline_epsilon: float
     max_fov: float
@@ -32,8 +32,8 @@ class DatasetRE10kCfg(DatasetCfgCommon):
     augment: bool
 
 
-class DatasetRE10k(IterableDataset):
-    cfg: DatasetRE10kCfg
+class DatasetSingle(IterableDataset):
+    cfg: DatasetSingleCfg
     stage: Stage
     view_sampler: ViewSampler
 
@@ -44,7 +44,7 @@ class DatasetRE10k(IterableDataset):
 
     def __init__(
         self,
-        cfg: DatasetRE10kCfg,
+        cfg: DatasetSingleCfg,
         stage: Stage,
         view_sampler: ViewSampler,
     ) -> None:
@@ -100,20 +100,15 @@ class DatasetRE10k(IterableDataset):
             for example in chunk:
                 extrinsics, intrinsics = self.convert_poses(example["cameras"])
                 scene = example["key"]
+                
+                context_indices, target_indices = self.view_sampler.sample(
+                    scene,
+                    extrinsics,
+                    intrinsics,
+                )
+                
+                print(f"------------{type(context_indices)}")
 
-                try:
-                    context_indices, target_indices = self.view_sampler.sample(
-                        scene,
-                        extrinsics,
-                        intrinsics,
-                    )
-                except ValueError:
-                    # Skip because the example doesn't have enough frames.
-                    continue
-
-                # Skip the example if the field of view is too wide.
-                if (get_fov(intrinsics).rad2deg() > self.cfg.max_fov).any():
-                    continue
 
                 # Load the images.
                 try:
@@ -126,6 +121,7 @@ class DatasetRE10k(IterableDataset):
                     ]
                     target_images = self.convert_images(target_images)
                 except IndexError:
+                    print(f"IndexError`")
                     continue
 
                 # Skip the example if the images don't have the right shape.
@@ -141,18 +137,8 @@ class DatasetRE10k(IterableDataset):
 
                 # Resize the world to make the baseline 1.
                 context_extrinsics = extrinsics[context_indices]
-                if context_extrinsics.shape[0] == 2 and self.cfg.make_baseline_1:
-                    a, b = context_extrinsics[:, :3, 3]
-                    scale = (a - b).norm()
-                    if scale < self.cfg.baseline_epsilon:
-                        print(
-                            f"Skipped {scene} because of insufficient baseline "
-                            f"{scale:.6f}"
-                        )
-                        continue
-                    extrinsics[:, :3, 3] /= scale
-                else:
-                    scale = 1
+
+                scale = 1
 
                 example = {
                     "context": {
@@ -190,31 +176,26 @@ class DatasetRE10k(IterableDataset):
         intrinsics = torch.eye(3, dtype=torch.float32)
         intrinsics = repeat(intrinsics, "h w -> b h w", b=b).clone()
         fx, fy, cx, cy = poses[:, :4].T
-        intrinsics[:, 0, 0] = fx
-        intrinsics[:, 1, 1] = fy
-        intrinsics[:, 0, 2] = cx
-        intrinsics[:, 1, 2] = cy
+        intrinsics[:, 0, 0] = fx/640
+        intrinsics[:, 1, 1] = fy/360
+        intrinsics[:, 0, 2] = cx/640
+        intrinsics[:, 1, 2] = cy/360
 
         # Convert the extrinsics to a 4x4 OpenCV-style W2C matrix.
         w2c = repeat(torch.eye(4, dtype=torch.float32), "h w -> b h w", b=b).clone()
         w2c[:, :3] = rearrange(poses[:, 6:], "b (h w) -> b h w", h=3, w=4)
-        print("----Extrinisc & Intrisnics----")
-        print(w2c.inverse()[0])
-        print(intrinsics[0])
+        
+        i = torch.eye(4, dtype=torch.float32)
+        print(f"extrinsic is identity {torch.allclose(i,w2c)}") 
+        
         return w2c.inverse(), intrinsics
 
     def convert_images(
         self,
-        images: list[UInt8[Tensor, "..."]],
+        images,
     ) -> Float[Tensor, "batch 3 height width"]:
         torch_images = []
-        for image in images:
-            print(f"before convert-----------{image.shape}")
-            image = Image.open(BytesIO(image.numpy().tobytes()))
-            
-            image  = self.to_tensor(image)
-            print(f"after convert-----------{image.shape}")
-            
+        for image in images:        
             torch_images.append(image)
         return torch.stack(torch_images)
 

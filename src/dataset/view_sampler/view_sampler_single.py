@@ -52,11 +52,11 @@ class ViewSamplerSingle(ViewSampler[ViewSamplerSingleCfg]):
         Int64[Tensor, " context_view"],  # indices for context views
         Int64[Tensor, " target_view"],  # indices for target views
     ]:
-        entry = self.index.get(scene)
-        if entry is None:
-            raise ValueError(f"No indices available for scene {scene}.")
-        context_indices = torch.tensor(0, dtype=torch.int64, device=device)
-        target_indices = torch.tensor(0, dtype=torch.int64, device=device)
+        # entry = self.index.get(scene)
+        # if entry is None:
+        #     raise ValueError(f"No indices available for scene {scene}.")
+        context_indices = torch.tensor([0,0], dtype=torch.int64, device=device)
+        target_indices = torch.tensor([0,0,0], dtype=torch.int64, device=device)
 
         return context_indices, target_indices
 

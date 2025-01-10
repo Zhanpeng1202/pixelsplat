@@ -3,51 +3,74 @@ import cv2
 import numpy as np
 from PIL import Image
 from io import BytesIO
+import glob
+import os
+import torchvision.transforms as tf
 
 
 
-
-#### prepare data
-rgb_file = '/data/guest_storage/zhanpengluo/Dataset/DAVIS/JPEGImages/480p/rollerblade/00000.jpg'
-
-# intrinsic = [707.0493, 707.0493, 604.0814, 180.5066]
-intrinsic = [489.01218, 435.0171, 191.5, 95.5]
-
-extrinsic = torch.eye(4)
-rgb_origin = cv2.imread(rgb_file)[:, :, ::-1]
-
-
-byte_stream = BytesIO()
-byte_stream.seek(0)
-image_bytes = byte_stream.getvalue()
-new_byte_stream = BytesIO(image_bytes)
-
-new_image = Image.open(new_byte_stream)
-new_image.save("byte.jpg")
-
-image = Image.fromarray(np.uint8(rgb_origin))
-image.save('output.jpg')
-# rgb_origin = cv2.resize(rgb_origin, (320, 180), interpolation=cv2.INTER_LINEAR)
-# print(rgb_origin.shape)
-# print("Above is our h w ")
+def read_pst_sample_data():
+    file_path = '/data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/dataset/storage/000001.torch'  # Replace with your file's path
+    content = torch.load(file_path)
+    content = content[0]
+    for key, value in content.items():
+        if torch.is_tensor(value):
+            print(f"Key: {key}, Tensor shape: {value.shape}")
+        elif key == "images":
+                print(f"length of images: {len(value)}")
+        else:
+            print(f"Key: {key}, Value: {value}")
+    print(content['timestamps'])
 
 
-# file_path = '/data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/dataset/re10k_subset/test/000000.torch'  # Replace with your file's path
-# contents :list  = torch.load(file_path)
+dict_to_save = {}
+dict_to_save['url'] = 'DAVIS'
+dict_to_save['timestamps'] = []
+
+cameras = []
+images = []
+
+to_tensor = tf.ToTensor()
 
 
-# print(f"length of list {len(contents)}")
+jpg_path = "/data/guest_storage/zhanpengluo/Dataset/DAVIS/rollerblade/JPEGImages/480p/rollerblade"
+jpg_files = glob.glob(os.path.join(jpg_path, '*.jpg'))
+npz_path = "/data/guest_storage/zhanpengluo/TrackAnyPoint/casualSAM/experiment_logs/01-09/davis_dev/rollerblade/BA_full"
+npz_files = glob.glob(os.path.join(npz_path, '*.npz'))
 
-# content = contents[0]
+assert len(jpg_files) == len(npz_files)
 
-# for key, value in content.items():
-#     if torch.is_tensor(value):
-#         print(f"Key: {key}, Tensor shape: {value.shape}")
-#     else:
-#         print(f"Key: {key}, content type:", type(value))
-        
+for i in range(len(jpg_files)):
+    jpg_file = jpg_files[i]
+    npz_file = npz_files[i]
+    data = np.load(npz_file)
+    K = data['K']
+    
+    cam = torch.zeros(18)
+    cam[0] = float(K[0][0])
+    cam[1] = float(K[1][1])
+    cam[2] = float(K[0][2])
+    cam[3] = float(K[1][2])
+    
+    cam[6] = 1.0
+    cam[11] = 1.0
+    cam[16] = 1.0
+    
+    cameras.append(cam)
+    
+    
+    rgb = cv2.imread(jpg_file)[:, :, ::-1]
+    rgb = cv2.resize(rgb,(640,360),interpolation=cv2.INTER_LINEAR)
+    rgb = to_tensor(rgb)
+    images.append(rgb)
+    
+cameras = torch.stack(cameras)
 
-# item_images = content["images"]
-# print(len(item_images))
+dict_to_save['cameras'] = cameras
+dict_to_save['images'] = images
+dict_to_save['key'] = 'rollerblade2'
 
-# print(item_images[0].shape)
+list_to_save = []
+list_to_save.append(dict_to_save)
+
+torch.save(list_to_save, '/data/guest_storage/zhanpengluo/FeedForwardGS/pixelsplat/dataset/davis_simple/test/000000.torch')
