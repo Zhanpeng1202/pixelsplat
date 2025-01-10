@@ -133,6 +133,10 @@ def sample_image_grid(
     coordinates = [(idx + 0.5) / length for idx, length in zip(indices, shape)]
     coordinates = reversed(coordinates)
     coordinates = torch.stack(torch.meshgrid(*coordinates, indexing="xy"), dim=-1)
+    
+    # print(coordinates.shape)
+    # print(stacked_indices.shape)
+    # print(stacked_indices)
 
     return coordinates, stacked_indices
 

@@ -59,7 +59,7 @@ def generate_point_cloud_figure(cfg_dict):
     cfg = load_typed_root_config(cfg_dict)
     set_cfg(cfg_dict)
     torch.manual_seed(cfg_dict.seed)
-    device = torch.device("cuda:0")
+    device = torch.device("cuda:7")
 
     # Prepare the checkpoint for loading.
     checkpoint_path = update_checkpoint_path(cfg.checkpointing.load, cfg.wandb)

@@ -8,7 +8,7 @@ defaults:
 wandb:
   project: pixelsplat
   entity: scene-representation-group
-  name: single
+  name: single_400
   mode: disabled
 
 mode: test

@@ -176,17 +176,17 @@ class DatasetSingle(IterableDataset):
         intrinsics = torch.eye(3, dtype=torch.float32)
         intrinsics = repeat(intrinsics, "h w -> b h w", b=b).clone()
         fx, fy, cx, cy = poses[:, :4].T
-        intrinsics[:, 0, 0] = fx/640
-        intrinsics[:, 1, 1] = fy/360
-        intrinsics[:, 0, 2] = cx/640
-        intrinsics[:, 1, 2] = cy/360
+        intrinsics[:, 0, 0] = fx/400
+        intrinsics[:, 1, 1] = fy/180
+        intrinsics[:, 0, 2] = cx/400
+        intrinsics[:, 1, 2] = cy/180
 
         # Convert the extrinsics to a 4x4 OpenCV-style W2C matrix.
         w2c = repeat(torch.eye(4, dtype=torch.float32), "h w -> b h w", b=b).clone()
         w2c[:, :3] = rearrange(poses[:, 6:], "b (h w) -> b h w", h=3, w=4)
         
         i = torch.eye(4, dtype=torch.float32)
-        print(f"extrinsic is identity {torch.allclose(i,w2c)}") 
+        print(f"extrinsic is identity {torch.allclose(i,w2c.inverse())}") 
         
         return w2c.inverse(), intrinsics
 

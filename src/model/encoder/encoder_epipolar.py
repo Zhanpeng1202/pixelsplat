@@ -151,6 +151,9 @@ class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
         )
 
         # Convert the features and depths into Gaussians.
+        
+        # h = 176 w = 320
+        
         xy_ray, _ = sample_image_grid((h, w), device)
         xy_ray = rearrange(xy_ray, "h w xy -> (h w) () xy")
         gaussians = rearrange(
