@@ -109,6 +109,7 @@ def get_world_rays(
     directions = transform_cam2world(directions, extrinsics)[..., :-1]
 
     # Tile the ray origins to have the same shape as the ray directions.
+    # origin is the translation part of the extrinsics
     origins = extrinsics[..., :-1, -1].broadcast_to(directions.shape)
 
     return origins, directions

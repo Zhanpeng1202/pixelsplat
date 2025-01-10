@@ -195,6 +195,14 @@ class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
             if self.cfg.predict_opacity
             else 1
         )
+        
+        gaussians.means = gaussians.means[:, 0:1, :, :, :, :]
+        gaussians.covariances = gaussians.covariances[:, 0:1, :, :, :, :]
+        gaussians.harmonics = gaussians.harmonics[:, 0:1, :, :, :, :]
+        gaussians.opacities = gaussians.opacities[:, 0:1, :, :, :]
+        
+        print(f"----shape of gaussians.means {gaussians.means.shape}")
+        
 
         return Gaussians(
             rearrange(
