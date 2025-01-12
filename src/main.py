@@ -29,7 +29,9 @@ with install_import_hook(
     from src.misc.wandb_tools import update_checkpoint_path
     from src.model.decoder import get_decoder
     from src.model.encoder import get_encoder
-    from src.model.model_wrapper import ModelWrapper
+    from src.model.model_4d import Model_4d
+    # # from src.model.model_wrapper import ModelWrapper
+    # from src.model.model_4d import ModelWrapper
 
 
 def cyan(text: str) -> str:
@@ -42,6 +44,7 @@ def cyan(text: str) -> str:
     config_name="main",
 )
 def train(cfg_dict: DictConfig):
+    # print(cfg_dict)
     cfg = load_typed_root_config(cfg_dict)
     set_cfg(cfg_dict)
 
@@ -110,7 +113,7 @@ def train(cfg_dict: DictConfig):
 
     encoder, encoder_visualizer = get_encoder(cfg.model.encoder)
 
-    model_wrapper = ModelWrapper(
+    model_wrapper = Model_4d(
         cfg.optimizer,
         cfg.test,
         cfg.train,
@@ -120,12 +123,16 @@ def train(cfg_dict: DictConfig):
         get_losses(cfg.loss),
         step_tracker,
     )
+
+    
     data_module = DataModule(
         cfg.dataset,
         cfg.data_loader,
         step_tracker,
         global_rank=trainer.global_rank,
     )
+    
+
 
     if cfg.mode == "train":
         trainer.fit(model_wrapper, datamodule=data_module, ckpt_path=checkpoint_path)

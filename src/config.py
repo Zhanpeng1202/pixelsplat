@@ -9,7 +9,7 @@ from .dataset.data_module import DataLoaderCfg, DatasetCfg
 from .loss import LossCfgWrapper
 from .model.decoder import DecoderCfg
 from .model.encoder import EncoderCfg
-from .model.model_wrapper import OptimizerCfg, TestCfg, TrainCfg
+from .model.model_4d import OptimizerCfg, TestCfg, TrainCfg
 
 
 @dataclass
@@ -61,6 +61,7 @@ def load_typed_config(
     data_class: Type[T],
     extra_type_hooks: dict = {},
 ) -> T:
+    # print("---------- Touch this line to trigger the bug ----------")
     return from_dict(
         data_class,
         OmegaConf.to_container(cfg),

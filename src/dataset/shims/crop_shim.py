@@ -91,3 +91,35 @@ def apply_crop_shim(example: AnyExample, shape: tuple[int, int]) -> AnyExample:
         "context": apply_crop_shim_to_views(example["context"], shape),
         "target": apply_crop_shim_to_views(example["target"], shape),
     }
+    
+    
+def apply_crop_video(example: AnyExample, shape: tuple[int, int]) -> AnyExample:
+    """Crop images in the example."""
+            #     example = {
+            #     "context": {
+            #         "extrinsics": ex,
+            #         "intrinsics": Ks,
+            #         "image": images,
+            #         "near": self.get_bound("near", 2),
+            #         "far": self.get_bound("far", 2),
+            #         "index": torch.tensor([0]),
+            #         "mask": masks,
+            #         "t": length,
+            #     },
+            #     "target": {
+            #         "extrinsics": ex,
+            #         "intrinsics": Ks,
+            #         "image": images,
+            #         "near": self.get_bound("near", 1),
+            #         "far":  self.get_bound("far", 1),
+            #         "index": torch.tensor([0]),
+            #     },
+            #     "scene": scene,
+            # }
+
+    
+    return {
+        **example,
+        "context": apply_crop_shim_to_views(example["context"], shape),
+        "target": apply_crop_shim_to_views(example["target"], shape),
+    }

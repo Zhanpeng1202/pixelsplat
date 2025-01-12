@@ -27,8 +27,8 @@ class OpacityMappingCfg:
 
 
 @dataclass
-class EncoderEpipolarCfg:
-    name: Literal["epipolar"]
+class EncoderEpipolar4dCfg:
+    name: Literal["epipolar_4d"]
     d_feature: int
     num_monocular_samples: int
     num_surfaces: int
@@ -45,7 +45,7 @@ class EncoderEpipolarCfg:
     use_transmittance: bool
 
 
-class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
+class EncoderEpipolar(Encoder[EncoderEpipolar4dCfg]):
     backbone: Backbone
     backbone_projection: nn.Sequential
     epipolar_transformer: EpipolarTransformer | None
@@ -54,7 +54,7 @@ class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
     gaussian_adapter: GaussianAdapter
     high_resolution_skip: nn.Sequential
 
-    def __init__(self, cfg: EncoderEpipolarCfg) -> None:
+    def __init__(self, cfg: EncoderEpipolar4dCfg) -> None:
         super().__init__(cfg)
 
         self.backbone = get_backbone(cfg.backbone, 3)
@@ -205,10 +205,11 @@ class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
         
 
         return Gaussians(
-            rearrange(
-                gaussians.means,
-                "b v r srf spp xyz -> b (v r srf spp) xyz",
-            ),
+            # rearrange(
+            #     gaussians.means,
+            #     "b v r srf spp xyz -> b (v r srf spp) xyz",
+            # ),
+            gaussians.means,
             rearrange(
                 gaussians.covariances,
                 "b v r srf spp i j -> b (v r srf spp) i j",
@@ -222,6 +223,31 @@ class EncoderEpipolar(Encoder[EncoderEpipolarCfg]):
                 "b v r srf spp -> b (v r srf spp)",
             ),
         )
+
+    def deform(self, 
+               gaussians: Gaussians,
+               mask: Tensor,
+               depth:Tensor,
+               track: Tensor) -> Gaussians:
+        
+        
+        gaussians = self.gaussian_adapter.deform(gaussians)
+        b ,v, r, srf, spp, xyz = gaussians.means.shape
+        # change mean for gaussains in the mask 
+        
+        # for each pixel in the mask 
+        # --- depth
+        # intrinsics
+        
+        
+        
+        
+        
+        
+        
+        gaussians.means = rearrange(gaussians.means,
+                                    "b v r srf spp i j -> b (v r srf spp) i j")
+        return gaussians
 
     def get_data_shim(self) -> DataShim:
         def data_shim(batch: BatchedExample) -> BatchedExample:

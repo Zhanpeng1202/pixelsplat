@@ -25,6 +25,7 @@ with install_import_hook(
     from src.model.decoder.cuda_splatting import render_cuda_orthographic
     from src.model.encoder import get_encoder
     from src.model.model_wrapper import ModelWrapper
+    from src.model.model_4d import Model_4d
     from src.model.ply_export import export_ply
     from src.visualization.color_map import apply_color_map_to_image
     from src.visualization.drawing.cameras import unproject_frustum_corners

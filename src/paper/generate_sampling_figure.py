@@ -30,6 +30,7 @@ with install_import_hook(
     from src.model.encoder import get_encoder
     from src.model.encoder.epipolar.conversions import depth_to_relative_disparity
     from src.model.model_wrapper import ModelWrapper
+    from src.model.model_4d import Model_4d
     from src.visualization.drawing.cameras import unproject_frustum_corners
     from src.visualization.drawing.lines import draw_lines
     from src.visualization.drawing.points import draw_points

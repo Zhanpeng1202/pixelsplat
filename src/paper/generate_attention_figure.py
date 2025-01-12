@@ -22,6 +22,7 @@ with install_import_hook(
     from src.model.decoder import get_decoder
     from src.model.encoder import get_encoder
     from src.model.model_wrapper import ModelWrapper
+    from src.model.model_4d import Model_4d
     from src.paper.common import encode_image, save_svg
     from src.visualization.colors import get_distinct_color
 
